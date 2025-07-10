@@ -1,0 +1,67 @@
+version: "2"
+
+run:
+  timeout: 5m
+  issues-exit-code: 1
+  tests: false
+  skip-dirs:
+    - vendor
+    - migrations
+  modules-download-mode: readonly
+
+linters:
+  default: all
+  enable:
+    - govet
+    - errcheck
+    - revive
+    - staticcheck
+    - ineffassign
+    - misspell
+    - unused
+    - asciicheck
+    - bodyclose
+    - canonicalheader
+    - containedctx
+    - wsl_v5
+  disable:
+    - wsl
+  settings:
+    wsl_v5:
+      allow-first-in-block: true
+      allow-whole-block: false
+      branch-max-lines: 2
+  exclusions:
+    paths:
+      - ".txt"
+      - ".gitignore"
+
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+    - golines
+    - swaggo
+  settings:
+    option: value
+    gci:
+      no-inline-comments: true
+      no-prefix-comments: true
+  exclusions:
+    warn-unused: true
+    generated: strict
+    paths:
+      - ".*\\.my\\.go$"
+      - lib/bad.go
+
+output:
+  format:
+    text:
+      path: ./path/to/output.txt
+      print-linter-name: false
+      print-issued-lines: false
+      colors: false
+
+  print-issued-lines: true
