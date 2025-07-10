@@ -4,28 +4,24 @@ run:
   timeout: 5m
   issues-exit-code: 1
   tests: false
-  skip-dirs:
-    - vendor
-    - migrations
+  relative-path-mode: gomod
   modules-download-mode: readonly
+  go: '1.23'
+  concurrency: 3
 
 linters:
-  default: all
+  default: standard
   enable:
-    - govet
-    - errcheck
-    - revive
-    - staticcheck
-    - ineffassign
-    - misspell
-    - unused
-    - asciicheck
-    - bodyclose
-    - canonicalheader
-    - containedctx
-    - wsl_v5
-  disable:
-    - wsl
+    - dupl
+    - dupword
+    - errorlint
+    - funcorder
+    - funlen
+    - goconst
+    - gocritic
+    - gosec
+    - iface
+    - importas
   settings:
     wsl_v5:
       allow-first-in-block: true
@@ -45,10 +41,12 @@ formatters:
     - golines
     - swaggo
   settings:
-    option: value
     gci:
       no-inline-comments: true
       no-prefix-comments: true
+    golines:
+      max-len: 200
+      tab-len: 8
   exclusions:
     warn-unused: true
     generated: strict
@@ -56,12 +54,17 @@ formatters:
       - ".*\\.my\\.go$"
       - lib/bad.go
 
+issues:
+  max-issues-per-linter: 50
+  max-same-issues: 0
+
 output:
-  format:
+  formats:
     text:
       path: ./path/to/output.txt
-      print-linter-name: false
-      print-issued-lines: false
-      colors: false
+      print-linter-name: true
+      print-issued-lines: true
+      colors: true
+    json:
+      path: ./path/to/output.txt
 
-  print-issued-lines: true
