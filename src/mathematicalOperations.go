@@ -31,7 +31,9 @@ func Calculation(example string) string {
 
 	items := []rune(example)
 
+	//nolint:all
 	if !bracket {
+		gfg
 	}
 
 	for index := 0; index <= len(items); {
