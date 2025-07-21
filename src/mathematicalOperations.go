@@ -1,69 +1,57 @@
 package src
 
 import (
+	"Calculator-Go/src/save"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 )
 
 func Calculation(example string) string {
-	const (
-		openingParenthesis string = "("
-		closingParenthesis string = ")"
-		errorResult        string = "Ошибка вода"
-	)
-
 	var (
-		result                     float64
-		char                       string
-		numberFloat1, numberFloat2 float64
-		historyLineCount           uint8 = 5
-		bracket                          = true
-		indexNum1                        = 0
-		indexNum2                        = 2
-		indexSymbol                      = 1
+		result float64
+		//historyLineCount string = "5"
 	)
 
-	if strings.Contains(example, openingParenthesis) &&
-		!strings.Contains(example, closingParenthesis) {
-		return errorResult
+	parts := strings.Fields(example)
+	if len(parts) != 3 {
+		log.Fatalf("error: Invalid input format. Use format: number operator number")
+		return ""
 	}
 
-	items := []rune(example)
-
-	if !bracket {
+	num1, err := strconv.ParseFloat(parts[0], 64)
+	if err != nil {
+		log.Fatalf("error parse float: %v", err)
 	}
 
-	for index := 0; index <= len(items); {
+	char := parts[1]
 
-		numberFloat1, _ = strconv.ParseFloat(string(items[indexNum1]), 64)
-		char = string(items[indexSymbol])
-		numberFloat2, _ = strconv.ParseFloat(string(items[indexNum2]), 64)
-
-		switch char {
-		case `+`:
-			result = sum(numberFloat1, numberFloat2)
-		case `-`:
-			result = subtraction(numberFloat1, numberFloat2)
-		case `*`:
-			result = multiplication(numberFloat1, numberFloat2)
-		case `/`:
-			result = division(numberFloat1, numberFloat2)
-		case `h`:
-			readingFromFile(historyLineCount)
-		}
-
-		if indexNum2 == len(items)-1 {
-			break
-		}
-
-		indexNum1 = +4
-		indexNum2 = +2
-		indexSymbol = +1
+	num2, err := strconv.ParseFloat(parts[2], 64)
+	if err != nil {
+		log.Fatalf("error parse float: %v", err)
 	}
 
-	saveHistory(example, result)
-	return fmt.Sprintf("%f", result)
+	switch char {
+	case `+`:
+		result = sum(num1, num2)
+	case `-`:
+		result = subtraction(num1, num2)
+	case `*`:
+		result = multiplication(num1, num2)
+	case `/`:
+		result = division(num1, num2)
+	case `h`:
+		return "history" //GetHistory(historyLineCount)
+	default:
+		return "Вы ввели неизвестное что то :)"
+	}
+
+	errS := save.SaveHistory(example, result)
+	if errS != nil {
+		return fmt.Sprintf("%.2f	|	Результат не сохранен: %v", result, errS)
+	}
+	return fmt.Sprintf("%.2f", result)
 }
 
 func sum(number1, number2 float64) float64 {
@@ -84,19 +72,19 @@ func division(number1, number2 float64) float64 {
 	return number1 / number2
 }
 
-func stringToFloat(num string) []float64 {
+func stringToFloat(num string) []float32 {
 	resultNum := strings.Split(num, " ")
-	var result []float64
+	var result []float32
 
 	// Преобразуем каждый элемент
 	for _, str := range resultNum {
-		number, err := strconv.ParseFloat(str, 64)
+		number, err := strconv.ParseFloat(str, 32)
 		if err != nil {
 			fmt.Println("Error while converting:", err)
 			return result
 		}
 
-		result = append(result, number)
+		result = append(result, float32(number))
 	}
 
 	return result
