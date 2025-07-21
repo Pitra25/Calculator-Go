@@ -1,3 +1,6 @@
-*.txt
 .idea
+.vscode
+
+*.txt
+
 /path
