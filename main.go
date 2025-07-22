@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+
 	fmt.Println("Hello User!! \n To exit, enter exit. \n To view history, enter.")
 
 	for {
