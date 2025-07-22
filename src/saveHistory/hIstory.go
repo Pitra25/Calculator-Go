@@ -1,13 +1,12 @@
 package save
 
 import (
-	"bytes"
-	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"time"
 )
@@ -25,13 +24,13 @@ func NewApiCLient(baseUrl string) *ApiCLient {
 }
 
 type PostBody struct {
-	Calculation string `json: calculation`
-	CreatedAt   string `json: createdAt`
+	Calculation string `json:"calculation"`
+	CreatedAt   string `json:"createdAt"`
 }
 
 type responsStruct struct {
-	status  string `json:"status"`
-	message string `json:"message"`
+	Status  string `json:"status"`
+	Message string `json:"message"`
 }
 
 func SaveHistory(example string, result float64) error {
@@ -46,7 +45,7 @@ func SaveHistory(example string, result float64) error {
 		log.Fatalf("error convert struct to json. error: %v", err)
 	}
 
-	response, statusCode, err := apiCLient.Post("/calculator", postBodyJson)
+	response, statusCode, err := apiCLient.Post("/save", postBodyJson)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 		return fmt.Errorf("error: %v", err.Error())
@@ -72,35 +71,41 @@ func SaveHistory(example string, result float64) error {
 	// }
 }
 
-type responseHistory struct {
-	id          int    `json: id`
-	createdAt   string `json: createdAt`
-	calculation string `json: calculation`
+type ResponseHistory struct {
+	ID          int    `json:"id"`
+	CreatedAt   string `json:"createdAt"`
+	Calculation string `json:"calculation"`
 }
 
-func GetHistory(key string) ([]responseHistory, error) {
+func GetHistory(key string) ([]ResponseHistory, error) {
 	apiCLient := NewApiCLient("http://localhost:8080")
 
-	var url string = ""
+	var requestURL string = "/history"
+	if key != "" {
+		params := url.Values{}
+		params.Add("id", key)
 
-	if key == "" {
-		url = "/histore"
-	} else {
-		url = "/histore?id=" + key
+		encodedParams := params.Encode()
+
+		requestURL = requestURL + "?" + encodedParams
 	}
 
-	response, err := apiCLient.Get(url)
+	response, err := apiCLient.Get(requestURL)
 	if err != nil {
 		return nil, fmt.Errorf("error: %v", err)
 	}
 
-	var data []responseHistory
-
-	reader := bytes.NewReader(response)
-	err = binary.Read(reader, binary.LittleEndian, &data)
+	var data []ResponseHistory
+	err = json.Unmarshal(response, &data)
 	if err != nil {
 		return nil, fmt.Errorf("error decoding: %v", err)
 	}
+
+	// reader := bytes.NewReader(response)
+	// err = binary.Read(reader, binary.LittleEndian, &data)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("error decoding: %v", err)
+	// }
 
 	return data, nil
 }

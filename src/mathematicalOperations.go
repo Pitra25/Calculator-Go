@@ -1,7 +1,7 @@
 package src
 
 import (
-	"Calculator-Go/src/save"
+	save "Calculator-Go/src/saveHistory"
 	"fmt"
 	"log"
 	"strconv"
@@ -15,9 +15,20 @@ func Calculation(example string) string {
 	)
 
 	parts := strings.Fields(example)
+
 	if len(parts) != 3 {
-		log.Fatalf("error: Invalid input format. Use format: number operator number")
-		return ""
+		if parts[0] == "h" {
+			if len(parts) == 2 {
+				getHistory(parts[1])
+				return ""
+			} else {
+				getHistory("")
+				return ""
+			}
+		} else {
+			log.Fatalf("error: Invalid input format. Use format: number operator number")
+			return ""
+		}
 	}
 
 	num1, err := strconv.ParseFloat(parts[0], 64)
@@ -41,8 +52,6 @@ func Calculation(example string) string {
 		result = multiplication(num1, num2)
 	case `/`:
 		result = division(num1, num2)
-	case `h`:
-		return "history" //GetHistory(historyLineCount)
 	default:
 		return "Вы ввели неизвестное что то :)"
 	}
@@ -70,6 +79,31 @@ func division(number1, number2 float64) float64 {
 	}
 
 	return number1 / number2
+}
+
+type ResponseHistory struct {
+	ID          int    `json:"id"`
+	CreatedAt   string `json:"createdAt"`
+	Calculation string `json:"calculation"`
+}
+
+func getHistory(key string) {
+	var result []save.ResponseHistory
+	var err error
+
+	result, err = save.GetHistory(key)
+	if err != nil {
+		log.Fatalln("error get history: ", err)
+	}
+
+	for _, element := range result {
+		items := ResponseHistory{
+			ID:          element.ID,
+			CreatedAt:   element.CreatedAt,
+			Calculation: element.Calculation,
+		}
+		fmt.Println(items.CreatedAt, " | ", items.Calculation)
+	}
 }
 
 func stringToFloat(num string) []float32 {
