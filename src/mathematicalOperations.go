@@ -2,6 +2,7 @@ package src
 
 import (
 	save "Calculator-Go/src/saveHistory"
+	"Calculator-Go/src/types"
 	"fmt"
 	"log"
 	"strconv"
@@ -81,14 +82,8 @@ func division(number1, number2 float64) float64 {
 	return number1 / number2
 }
 
-type ResponseHistory struct {
-	ID          int    `json:"id"`
-	CreatedAt   string `json:"createdAt"`
-	Calculation string `json:"calculation"`
-}
-
 func getHistory(key string) {
-	var result []save.ResponseHistory
+	var result []*types.ResponseHistory
 	var err error
 
 	result, err = save.GetHistory(key)
@@ -97,7 +92,7 @@ func getHistory(key string) {
 	}
 
 	for _, element := range result {
-		items := ResponseHistory{
+		items := types.ResponseHistory{
 			ID:          element.ID,
 			CreatedAt:   element.CreatedAt,
 			Calculation: element.Calculation,
